@@ -1,13 +1,13 @@
 import os
-import scipy
+import scipy.spatial
 import numpy as np
 
-from utils import split_words, roformer_encoder,get_auditfolder,get_embedding,get_csvdf
+from utils import split_words, roformer_encoder, get_auditfolder, get_embedding, get_csvdf
 
 
 def get_auditcol(industry_choice):
     if industry_choice in ['证券', '期货', '基金']:
-        col = ['监管要求', '结构', '条款', '审计子程序', '资料','判断条件']
+        col = ['监管要求', '结构', '条款', '审计子程序', '资料', '判断条件']
     elif industry_choice == '等级保护':
         col = ['监管要求', '结构', '序号', '条款', '审计子程序', '资料', '判断条件']
     elif industry_choice == '内审协会':
@@ -112,4 +112,3 @@ def searchls2df(search_list, section_text, make_choice, choice, top, flag):
         newdf = resuledf.fillna('')[['结构', '条款', '审计子程序', '资料']]
         dfls.append(newdf)
     return dfls
-
