@@ -14,12 +14,8 @@ def main():
 
     industry_choice = st.sidebar.selectbox('选择行业:', industry_list)
 
-    # industry_choice = '支付'
     if industry_choice != '':
-
-        # name_text = st.sidebar.text_input('按制度名关键字搜索')
         name_text = ''
-
         searchresult, choicels = searchauditByName(name_text,
                                                     industry_choice)
 
@@ -27,8 +23,6 @@ def main():
 
         if make_choice == []:
             make_choice = choicels
-
-        # column_text = st.sidebar.text_input('按章节关键字搜索')
         section_list = get_section_list(searchresult, make_choice)
         column_text = st.sidebar.multiselect('选择章节:', section_list)
         if column_text == []:
@@ -48,7 +42,6 @@ def main():
 
             st.sidebar.subheader("搜索范围")
             st.sidebar.write(make_choice)
-            # st.sidebar.dataframe(choicels)
 
             # if not all text is empty
             if (column_text != '') or (item_text != '') or (
@@ -67,8 +60,6 @@ def main():
                                     file_name='审计程序搜索结果.csv',
                                     mime='text/csv')
 
-                # st.sidebar.write('总数:', total)
-
         elif match == '模糊搜索':
             top = st.sidebar.slider('匹配数量选择',
                                     min_value=1,
@@ -80,21 +71,14 @@ def main():
 
             search = st.sidebar.button('搜索审计程序')
 
-            # st.sidebar.warning("搜索范围:"+''.join(make_choice))
             st.sidebar.subheader("搜索范围")
             st.sidebar.write(make_choice)
-            # st.sidebar.write(''.join(make_choice))
 
             if search:
                 # search by search_text
                 if search_text != '':
                     search_list = search_text.split()
                     search_list = list(filter(None, search_list))
-                    # split by ""
-                    # search_list = search_text.split()
-                    # filter blank item
-                    # search_list = list(
-                    #     filter(lambda item: item.strip(), search_list))
 
                     procflag = False
                     with st.spinner('正在搜索中...'):
@@ -102,7 +86,7 @@ def main():
                                             make_choice, industry_choice,
                                             top, procflag)
                         for search_obj, df in zip(search_list, dfls):
-                            st.warning('审计目标：' + search_obj)
+                            st.warning('审计目标:' + search_obj)
                             st.table(df)
                         # search is done
                         st.sidebar.success('审计目标搜索完成')                            
@@ -117,10 +101,6 @@ def main():
                 if proc_text != '':
                     proc_list = proc_text.split()
                     proc_list = list(filter(None, proc_list))
-                    # proc_list = proc_text.split()
-                    # filter blank item
-                    # proc_list = list(
-                    #     filter(lambda item: item.strip(), proc_list))
 
                     procflag = True
                     with st.spinner('正在搜索中...'):
