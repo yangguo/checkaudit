@@ -134,3 +134,6 @@ dmypy.json
 # ignore folders
 .VSCodeCounter
 .vscode
+.trunk
+audit
+uploads
