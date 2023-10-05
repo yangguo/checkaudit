@@ -1,49 +1,52 @@
 import glob
 import os
 
-import numpy as np
+# import numpy as np
 import pandas as pd
-import streamlit as st
-import torch
+
+# import streamlit as st
+# import torch
 from st_aggrid import AgGrid
 from st_aggrid.grid_options_builder import GridOptionsBuilder
 from st_aggrid.shared import GridUpdateMode
-from transformers import RoFormerModel, RoFormerTokenizer
 
-modelfolder = "junnyu/roformer_chinese_sim_char_ft_base"
+# from transformers import RoFormerModel, RoFormerTokenizer
+
+# modelfolder = "junnyu/roformer_chinese_sim_char_ft_base"
 auditfolder = "audit"
+rulefolder = "rules"
 
-tokenizer = RoFormerTokenizer.from_pretrained(modelfolder)
-model = RoFormerModel.from_pretrained(modelfolder)
+# tokenizer = RoFormerTokenizer.from_pretrained(modelfolder)
+# model = RoFormerModel.from_pretrained(modelfolder)
 
 
 # Mean Pooling - Take attention mask into account for correct averaging
-def mean_pooling(model_output, attention_mask):
-    # First element of model_output contains all token embeddings
-    token_embeddings = model_output[0]
-    input_mask_expanded = (
-        attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
-    )
-    return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(
-        input_mask_expanded.sum(1), min=1e-9
-    )
+# def mean_pooling(model_output, attention_mask):
+#     # First element of model_output contains all token embeddings
+#     token_embeddings = model_output[0]
+#     input_mask_expanded = (
+#         attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
+#     )
+#     return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(
+#         input_mask_expanded.sum(1), min=1e-9
+#     )
 
 
-def roformer_encoder(sentences):
-    # Tokenize sentences
-    encoded_input = tokenizer(
-        sentences, max_length=512, padding=True, truncation=True, return_tensors="pt"
-    )
+# def roformer_encoder(sentences):
+#     # Tokenize sentences
+#     encoded_input = tokenizer(
+#         sentences, max_length=512, padding=True, truncation=True, return_tensors="pt"
+#     )
 
-    # Compute token embeddings
-    with torch.no_grad():
-        model_output = model(**encoded_input)
+#     # Compute token embeddings
+#     with torch.no_grad():
+#         model_output = model(**encoded_input)
 
-    # Perform pooling. In this case, max pooling.
-    sentence_embeddings = mean_pooling(
-        model_output, encoded_input["attention_mask"]
-    ).numpy()
-    return sentence_embeddings
+#     # Perform pooling. In this case, max pooling.
+#     sentence_embeddings = mean_pooling(
+#         model_output, encoded_input["attention_mask"]
+#     ).numpy()
+#     return sentence_embeddings
 
 
 def audit2df(filename, filepath):
@@ -67,14 +70,14 @@ def get_csvdf(rulefolder):
     return alldf
 
 
-def get_embedding(folder, emblist):
-    dflist = []
-    for file in emblist:
-        filepath = os.path.join(folder, file + ".npy")
-        embeddings = np.load(filepath)
-        dflist.append(embeddings)
-    alldf = np.concatenate(dflist)
-    return alldf
+# def get_embedding(folder, emblist):
+#     dflist = []
+#     for file in emblist:
+#         filepath = os.path.join(folder, file + ".npy")
+#         embeddings = np.load(filepath)
+#         dflist.append(embeddings)
+#     alldf = np.concatenate(dflist)
+#     return alldf
 
 
 # split string by space into words, add brackets before and after words, combine into text
@@ -118,6 +121,12 @@ def get_folder_list(path):
 def get_auditfolder(industry_choice):
     # join folder with industry_choice
     folder = os.path.join(auditfolder, industry_choice)
+    return folder
+
+
+def get_rulefolder(industry_choice):
+    # join folder with industry_choice
+    folder = os.path.join(rulefolder, industry_choice)
     return folder
 
 
