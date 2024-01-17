@@ -20,7 +20,7 @@ rulefolder = "rules"
 
 
 def main():
-    menulist = ["审计模版上传", "审计程序搜索"]
+    menulist = ["审计程序搜索", "审计模版上传"]
 
     choice = st.sidebar.selectbox("选择功能", menulist)
 
@@ -64,7 +64,7 @@ def main():
                 # get new df
                 cols = [sec_col, plc_col, proc_col]
                 newdf = df[cols]
-                newdf.columns = ["结构", "条款", "审计子程序"]
+                newdf.columns = ["结构", "条款", "审计程序"]
 
             elif (
                 upload_file.type
@@ -111,7 +111,7 @@ def main():
                     # get newdf
                     cols = [sec_col, plc_col, proc_col]
                     newdf = df[cols]
-                    newdf.columns = ["结构", "条款", "审计子程序"]
+                    newdf.columns = ["结构", "条款", "审计程序"]
                 else:
                     st.error("请检查文件是否正确")
                     newdf = None
@@ -236,6 +236,10 @@ def main():
             plcsam, total = searchByItem(
                 searchresult, make_choice, column_text, item_text
             )
+        # search is done
+        st.sidebar.success("搜索完成")
+        st.sidebar.markdown("共搜索到" + str(total) + "条结果")
+
         proc_list = plcsam["条款"].tolist()
 
         newdf = st.data_editor(plcsam, num_rows="dynamic")
@@ -243,48 +247,24 @@ def main():
         newdf = newdf.reset_index(drop=True)
         # st.write(newdf)
 
-        # grid_table = df2aggrid(edit_plc)
-
-        # sel_row = grid_table["selected_rows"]
-
-        # st.subheader("搜索结果")
-
-        # df_sel_row = pd.DataFrame(sel_row)
-        # # csv = df_sel_row.to_csv().encode("utf-8-sig")
-        # if not df_sel_row.empty:
-        #     st.table(df_sel_row)
-        #     # convert dataframe to dict list
-        #     df_dict = df_sel_row.to_dict("records")
-        #     data = df_dict
-        #     cols = df_sel_row.columns.tolist()
-        #     # columns=[
-        #     #     {"name": col, "type": "text"} for col in cols
-        #     # ]
-        #     newdata = []
-        #     for i, row in enumerate(data):
-        #         st.markdown("#### 测试：" + str(i + 1))
-        #         newrow = {}
-        #         for col in cols:
-        #             # st.write(row[col])
-        #             # st.write(col)
-        #             # st.write(f"{col}{i}")
-        #             newval = st.text_area(
-        #                 label=col, value=row[col], key=f"{col}{i}"
-        #             )
-        #             newrow[col] = newval
-        #         testres = st.text_area(label="测试结果", key=f"testres{i}")
-        #         newrow["测试结果"] = testres
-        #         newdata.append(newrow)
-
-        #     newdf = pd.DataFrame(newdata)
-        # st.table(newdf)
-
         # choose model
         model_name = st.sidebar.selectbox(
-            "选择模型", ["gpt-35-turbo", "gpt-35-turbo-16k", "gpt-4", "gpt-4-32k"]
+            "选择模型",
+            [
+                "gpt-35-turbo",
+                "gpt-35-turbo-16k",
+                "gpt-4",
+                "gpt-4-32k",
+                "gpt-4-turbo",
+                "tongyi",
+                "ERNIE-Bot-4",
+                "ERNIE-Bot-turbo",
+                "ChatGLM2-6B-32K",
+                "Yi-34B-Chat",
+                "gemini-pro",
+            ],
         )
-
-        genauditproc = st.sidebar.button("审计程序生成")
+        genauditproc = st.sidebar.button("审计方案生成")
 
         if genauditproc:
             # split list into batch of 5
@@ -294,7 +274,7 @@ def main():
                 for i in range(0, len(proc_list), batch_num)
             ]
 
-            dfls = []
+            auditls = []
             # get proc and audit batch
             for j, proc_batch in enumerate(proc_list_batch):
                 with st.spinner("处理中..."):
@@ -316,15 +296,10 @@ def main():
                         # check if proc is blank, after remove space
                         if proc.replace(" ", "") == "":
                             st.error("审计程序为空")
-                            audit_list = ""
+                            audit_steps = ""
                             # merged_audit_list = ""
                         else:
-                            audit_list = get_audit_steps(proc, model_name)
-
-                            # st.write(audit_list)
-                            # merge audit list
-                            # merged_audit_list = merge_items(audit_list)
-                            # merged_audit_list = audit_list
+                            audit_steps = get_audit_steps(proc, model_name)
                         # auditls.append(merged_audit_list)
                         # get count number from start
                         count = str(j * batch_num + i + 1)
@@ -333,49 +308,17 @@ def main():
                         st.warning("审计要求 " + count + ":")
                         st.write(proc)
                         # print audit list
-                        st.info("审计程序 " + count + ": ")
-                        # for audit in audit_list:
-                        #     st.write(audit)
-                        # convert to df
-                        df = pd.DataFrame(audit_list, index=[0])
-                        # df = convert_json_to_df(audit_list)
-                        st.table(df)
-                        # st.write(merged_audit_list)
+                        st.info("审计方案 " + count + ": ")
+                        st.write(audit_steps)
 
-                        # (
-                        #     audit_work_list,
-                        #     interview_question_list,
-                        #     document_list,
-                        # ) = separate_items(auditls)
-                        # convert to dataframe
-                        # df = pd.DataFrame(
-                        #     {
-                        #         # "policy": proc_batch,
-                        #         "审计程序": audit_work_list,
-                        #         "访谈问题": interview_question_list,
-                        #         "资料清单": document_list,
-                        #     }
-                        # )
-                        dfls.append(df)
+                        auditls.append(audit_steps)
 
             # conversion is done
             st.sidebar.success("处理完成")
             # if dfls not empty
-            if dfls:
-                alldf = pd.concat(dfls)
-                # reset index
-                alldf = alldf.reset_index(drop=True)
-                # df explode by auditproc and reset index
-                # alldf = alldf.explode('auditproc')
-                # alldf = alldf.reset_index(drop=True)
-                # st.sidebar.download_button(
-                #     label="Download",
-                #     data=alldf.to_csv(),
-                #     file_name="plc2auditresult.csv",
-                #     mime="text/csv",
-                # )
+            if auditls:
                 # combine with newdf
-                newdf = pd.concat([newdf, alldf], axis=1)
+                newdf["审计方案"] = auditls
 
         st.markdown("#### 审计底稿处理结果")
 
@@ -387,88 +330,6 @@ def main():
             file_name="wpresults.csv",
             mime="text/csv",
         )
-        # search is done
-        st.sidebar.success("搜索完成")
-        st.sidebar.markdown("共搜索到" + str(total) + "条结果")
-        # st.sidebar.download_button(
-        #     label="下载结果",
-        #     data=plcsam.to_csv(),
-        #     file_name="审计程序搜索结果.csv",
-        #     mime="text/csv",
-        # )
-
-        # elif match == "模糊搜索":
-        #     top = st.sidebar.slider("匹配数量选择", min_value=1, max_value=10, value=3)
-        #     search_text = st.sidebar.text_area("按审计目标搜索")
-
-        #     proc_text = st.sidebar.text_area("按审计程序搜索")
-
-        #     search = st.sidebar.button("搜索审计程序")
-
-        #     st.sidebar.subheader("搜索范围")
-        #     # st.sidebar.write(make_choice)
-        #     # display make_choice
-        #     for make in make_choice:
-        #         st.sidebar.markdown("- " + make)
-
-        #     if search:
-        #         # search by search_text
-        #         if search_text != "":
-        #             search_list = search_text.split()
-        #             search_list = list(filter(None, search_list))
-
-        #             procflag = False
-        #             with st.spinner("正在搜索中..."):
-        #                 dfls = searchls2df(
-        #                     search_list,
-        #                     column_text,
-        #                     make_choice,
-        #                     industry_choice,
-        #                     top,
-        #                     procflag,
-        #                 )
-        #                 for search_obj, df in zip(search_list, dfls):
-        #                     st.warning("审计目标:" + search_obj)
-        #                     st.table(df)
-        #                 # search is done
-        #                 st.sidebar.success("审计目标搜索完成")
-        #                 # download all dfls
-        #                 st.sidebar.download_button(
-        #                     label="下载审计目标结果",
-        #                     data=pd.concat(dfls).to_csv(),
-        #                     key="text",
-        #                     file_name="审计目标匹配结果.csv",
-        #                     mime="text/csv",
-        #                 )
-
-        #         # seach by proc_text
-        #         if proc_text != "":
-        #             proc_list = proc_text.split()
-        #             proc_list = list(filter(None, proc_list))
-
-        #             procflag = True
-        #             with st.spinner("正在搜索中..."):
-        #                 dfls = searchls2df(
-        #                     proc_list,
-        #                     column_text,
-        #                     make_choice,
-        #                     industry_choice,
-        #                     top,
-        #                     procflag,
-        #                 )
-        #                 for search_obj, df in zip(proc_list, dfls):
-        #                     st.info("审计程序：" + search_obj)
-        #                     st.table(df)
-        #                 # search is done
-        #                 st.sidebar.success("审计程序搜索完成")
-        #                 # download all dfls
-        #                 st.sidebar.download_button(
-        #                     label="下载审计程序结果",
-        #                     data=pd.concat(dfls).to_csv(),
-        #                     key="proc",
-        #                     file_name="审计程序匹配结果.csv",
-        #                     mime="text/csv",
-        #                 )
 
 
 if __name__ == "__main__":
