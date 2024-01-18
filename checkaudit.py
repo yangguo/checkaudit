@@ -9,7 +9,7 @@ def get_auditcol(industry_choice):
     if industry_choice in ["证券", "期货", "基金"]:
         col = ["监管要求", "结构", "条款", "审计程序"]
     elif industry_choice == "等级保护":
-        col = ["监管要求", "结构", "序号", "条款", "审计子程序", "资料", "判断条件"]
+        col = ["监管要求", "结构", "序号", "条款", "资料"]
     elif industry_choice == "内审协会":
         col = ["监管要求", "结构", "条款", "审计子程序", "资料", "判断条件"]
     else:
@@ -39,11 +39,11 @@ def searchauditByName(search_text, industry_choice):
     return plcsam, choicels
 
 
-def searchauditByItem(searchresult, make_choice, column_text, item_text, proc_text):
+def searchauditByItem(searchresult, make_choice, column_text, item_text):
     # split item_text into item_list
     item_list = split_words(item_text)
     # split proc_text into proc_list
-    proc_list = split_words(proc_text)
+    # proc_list = split_words(proc_text)
     # split pbc_text into pbc_list
     # pbc_list = split_words(pbc_text)
 
@@ -51,7 +51,7 @@ def searchauditByItem(searchresult, make_choice, column_text, item_text, proc_te
         (searchresult["监管要求"].isin(make_choice))
         & (searchresult["结构"].str.contains(column_text))
         & (searchresult["条款"].str.contains(item_list))
-        & (searchresult["审计程序"].str.contains(proc_list))
+        # & (searchresult["审计程序"].str.contains(proc_list))
         # & (searchresult["资料"].str.contains(pbc_list))
     ]
     total = len(plcsam)

@@ -188,7 +188,7 @@ def main():
             # if match == "关键字搜索":
             item_text = st.sidebar.text_input("按条款关键字搜索")
 
-            proc_text = st.sidebar.text_input("按审计程序关键字搜索")
+            # proc_text = st.sidebar.text_input("按审计程序关键字搜索")
 
             # pbc_text = st.sidebar.text_input("按审计资料关键字搜索")
 
@@ -207,7 +207,7 @@ def main():
                 make_choice,
                 column_text,
                 item_text,
-                proc_text,
+                # proc_text,
                 # pbc_text,
             )
             # proc_list = plcsam["审计子程序"].tolist()
